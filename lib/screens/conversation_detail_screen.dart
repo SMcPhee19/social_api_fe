@@ -371,9 +371,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             if (_messages.any((m) => m['client_message_id'] == message['client_message_id'])) {
               debugPrint("📩 Message confirmed.");
 
-              var confirmedMessage = _messages.first((m) =>
-                  m['client_message_id'] == message['client_message_id']);
-              confirmedMessage.remove('client_message_id');
+              final confirmedMessageIndex = _messages.indexWhere((m) => m['client_message_id'] != null && m['client_message_id'] == message['client_message_id']);
+              _messages[confirmedMessageIndex].remove('client_message_id');
             } else {
               debugPrint("📩 Message is new.");
 
@@ -415,7 +414,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     String uuid_string = uuid.v1();
 
     try {
-      var message = {'client_message_id': uuid_string, 'content': messageContent};
+      Map<String, dynamic> message = {'client_message_id': uuid_string, 'content': messageContent};
       final response = await http.post(
         Uri.parse(
             'http://localhost:3000/api/v0/conversations/${widget.conversationId}/messages'),
@@ -428,6 +427,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
       if (response.statusCode == 204) {
         setState(() {
+          message['user_id'] = _currentUserId;
           _messages.add(message);
           _messageController.clear();
         });
