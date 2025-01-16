@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io'; // Import the dart.io library for Platform checks
 
 /// A `StatefulWidget` that represents the login screen of the application.
-/// 
+///
 /// This widget creates an instance of `_LoginScreenState` which contains
 /// the logic and UI for the login screen.
 class LoginScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Instance of FlutterSecureStorage for securely storing sensitive data.
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-  
+
   /// A boolean flag indicating whether a loading process is ongoing.
   bool _isLoading = false;
 
@@ -30,10 +31,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     /// Retrieves the email and password input from their respective text controllers.
-    /// 
+    ///
     /// The email is obtained from `_emailController` and the password is obtained
     /// from `_passwordController`.
-    /// 
+    ///
     /// These values are typically used for authentication purposes.
     final String email = _emailController.text;
     final String password = _passwordController.text;
@@ -41,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
     /// Checks if the email or password fields are empty. If either field is empty,
     /// sets an error message indicating that all fields must be filled out and
     /// returns early.
-    /// 
+    ///
     /// This function is typically used to validate user input before proceeding
     /// with further actions, such as attempting to log in.
     if (email.isEmpty || password.isEmpty) {
@@ -60,13 +61,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
     /// Sends a login request and handles the response, storing the token and user ID if successful.
     try {
+      /// Dynamically determine the API URL based on the platform
+      final apiURL = Platform.isAndroid
+          ? 'http://10.0.2.2:3000/api/v0/login' // For Android Emulator
+          : 'http://localhost:3000/api/v0/login'; // For iOS or Web
+
       /// Sends a POST request to the login API endpoint with the provided email and password.
-      /// 
+      ///
       /// The request is sent to 'http://localhost:3000/api/v0/login' with a JSON body containing
       /// the email and password. The content type of the request is set to 'application/json'.
-      /// 
+      ///
       /// Returns the response from the server.
-      /// 
+      ///
       /// Example:
       /// ```dart
       /// final response = await http.post(
@@ -76,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
       /// );
       /// ```
       final response = await http.post(
-        Uri.parse('http://localhost:3000/api/v0/login'),
+        Uri.parse(apiURL),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -86,14 +92,14 @@ class _LoginScreenState extends State<LoginScreen> {
       debugPrint('Response body: ${response.body}');
 
       /// Handles the response from the login API call.
-      /// 
+      ///
       /// If the response status code is 201, it extracts the token and user ID from the response body,
       /// stores them securely using FlutterSecureStorage, and navigates to the Conversations Index Page.
       /// If the response status code is not 201, it sets an error message indicating invalid email or password.
-      /// 
+      ///
       /// @param response The HTTP response from the login API call.
       /// @param context The BuildContext used for navigation.
-      /// 
+      ///
       /// @throws Exception if there is an error writing to FlutterSecureStorage.
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
@@ -114,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     /// Handles exceptions that occur during the login process.
-    /// 
+    ///
     /// If an exception is caught, an error message is displayed to the user.
     /// Regardless of whether an exception occurs, the loading state is reset.
     } catch (e) {

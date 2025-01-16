@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:action_cable/action_cable.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:io'; // Import the dart.io library for Platform checks
 
 class ConversationDetailScreen extends StatefulWidget {
   /// The unique identifier for the conversation.
@@ -30,10 +31,10 @@ class ConversationDetailScreen extends StatefulWidget {
   }) : super(key: key);
 
   /// Creates the mutable state for this widget at a given location in the tree.
-  /// 
-  /// This method is typically overridden to return a new instance of the 
+  ///
+  /// This method is typically overridden to return a new instance of the
   /// corresponding State class for this StatefulWidget.
-  /// 
+  ///
   /// In this case, it returns an instance of `_ConversationDetailScreenState`.
   @override
   _ConversationDetailScreenState createState() =>
@@ -71,7 +72,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   // bool _isConnected = false; // ✅ Track connection status
 
   /// Initializes the state of the conversation detail screen.
-  /// 
+  ///
   /// This method is called when the state object is first created. It performs
   /// the following actions:
   /// - Calls the `super.initState()` method to ensure that any inherited
@@ -103,7 +104,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
   Future<void> _fetchMessages() async {
     /// Sets the state to indicate that a loading process is in progress.
-    /// 
+    ///
     /// This method updates the `_isLoading` variable to `true`, which can be used
     /// to show a loading indicator in the UI.
     setState(() {
@@ -112,7 +113,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
     /// Reads the authentication token from secure storage. If the token is null,
     /// it sets the `_isLoading` state to false and returns.
-    /// 
+    ///
     /// This ensures that the app does not proceed with an invalid or missing token.
     final String? token = await _secureStorage.read(key: 'auth_token');
     if (token == null) {
@@ -121,6 +122,11 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       });
       return;
     }
+
+    /// Dynamically determine the API URL based on the platform
+    final apiURL = Platform.isAndroid
+        ? 'http://10.0.2.2:3000/api/v0/conversations/${widget.conversationId}' // For Android Emulator
+        : 'http://localhost:3000/api/v0/conversations/${widget.conversationId}'; // For iOS or Web
 
     /// Fetches conversation messages from the server and updates the state.
     ///
@@ -140,8 +146,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     /// `_scrollToBottom` function is called to scroll the view to the bottom.
     try {
       final response = await http.get(
-        Uri.parse(
-            'http://localhost:3000/api/v0/conversations/${widget.conversationId}'),
+        Uri.parse(apiURL),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -170,21 +175,20 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     final String? authToken = await _secureStorage.read(key: 'auth_token');
     if (authToken == null) return;
 
-    /// The WebSocket URL used to establish a connection to the server.
-    /// 
-    /// This URL points to the local server running on `127.0.0.1` at port `3000`
-    /// and connects to the `/cable` endpoint.
-    final String wsUrl = "ws://127.0.0.1:3000/cable";
+    
+    final String wsUrl = Platform.isAndroid
+      ? "ws://10.0.2.2:3000/cable" // For Android Emulator
+      : "ws://127.0.0.1:3000/cable"; // For iOS or Web
 
     debugPrint("🔍 Attempting to connect to WebSocket: $wsUrl");
 
     /// Initializes a WebSocket connection using ActionCable and subscribes to a conversation channel.
-    /// 
+    ///
     /// The WebSocket connection is established with the provided `wsUrl` and `authToken`.
-    /// 
+    ///
     /// On successful subscription to the `ConversationChannel`, the `_isConnected` state is set to true.
     /// If the connection is disconnected, the `_isConnected` state is set to false.
-    /// 
+    ///
     /// When a message is received from the WebSocket:
     /// - If the message is a valid `Map<String, dynamic>`:
     ///   - If the message contains a `client_message_id`, it is checked against existing messages to avoid duplication.
@@ -193,7 +197,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     ///     - The `_scrollToBottom` method is called to scroll to the bottom of the message list.
     ///   - If the message does not contain `content` or `content` is null, a warning is logged.
     /// - If the message format is invalid, an error is logged.
-    /// 
+    ///
     /// If an error occurs during the connection process, it is caught and logged.
     try {
       _cable = ActionCable.Connect(
@@ -275,7 +279,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   }
 
   /// Sends a message to the server.
-  /// 
+  ///
   /// This function retrieves the message content from the `_messageController`,
   /// checks if it is not empty, and then reads the authentication token from
   /// secure storage. If the token is available, it generates a unique identifier
@@ -299,9 +303,14 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         'client_message_id': uuid_string,
         'content': messageContent
       };
+
+      /// Dynamically determine the API URL based on the platform
+      final apiURL = Platform.isAndroid
+          ? 'http://10.0.2.2:3000/api/v0/conversations/${widget.conversationId}/messages' // For Android Emulator
+          : 'http://localhost:3000/api/v0/conversations/${widget.conversationId}/messages'; // For iOS or Web
+
       final response = await http.post(
-        Uri.parse(
-            'http://localhost:3000/api/v0/conversations/${widget.conversationId}/messages'),
+        Uri.parse(apiURL),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -326,7 +335,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   }
 
   /// Scrolls the conversation view to the bottom.
-  /// 
+  ///
   /// This method uses a post-frame callback to ensure that the scroll
   /// controller has clients before attempting to animate to the bottom
   /// of the scrollable content. The animation duration is set to 300
@@ -391,8 +400,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                       final sentDate = message['sent_date'] != null
                           ? DateTime.parse(message['sent_date']).toLocal()
                           : DateTime.now();
-                      final participantFirstName =
-                          _getParticipantFirstName(userId);
+                      // final participantFirstName =
+                      //     _getParticipantFirstName(userId);
 
                       return Align(
                         alignment: isUserMessage
@@ -427,7 +436,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                                         fontSize: 14.0)),
                                 SizedBox(height: 4.0),
                                 Text(
-                                    "$participantFirstName - ${sentDate.hour}:${sentDate.minute.toString().padLeft(2, '0')}",
+                                    "${sentDate.hour}:${sentDate.minute.toString().padLeft(2, '0')}",
+                                    // "$participantFirstName - ${sentDate.hour}:${sentDate.minute.toString().padLeft(2, '0')}",
                                     style: TextStyle(
                                         fontSize: 10.0,
                                         color: isUserMessage

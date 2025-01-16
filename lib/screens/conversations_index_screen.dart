@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'conversation_detail_screen.dart';
+import 'dart:io'; // Import the dart.io library for Platform checks
 
 /// A screen that displays a list of conversations.
 ///
@@ -60,6 +61,11 @@ class _ConversationsIndexScreenState extends State<ConversationsIndexScreen> {
     }
 
     try {
+      /// Dynamically determine the API URL based on the platform
+      final apiURL = Platform.isAndroid
+          ? 'http://10.0.2.2:3000/api/v0/conversations' // For Android Emulator
+          : 'http://localhost:3000/api/v0/conversations'; // For iOS or Web
+
       final String? userId = await _secureStorage.read(key: 'user_id');
       if (userId == null) {
         setState(() {
@@ -70,7 +76,7 @@ class _ConversationsIndexScreenState extends State<ConversationsIndexScreen> {
       _currentUserId = int.parse(userId);
 
       final response = await http.get(
-        Uri.parse('http://localhost:3000/api/v0/conversations'),
+        Uri.parse(apiURL),
         headers: {'Authorization': 'Bearer $token'},
       );
 
