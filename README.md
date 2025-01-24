@@ -95,7 +95,32 @@ flutter doctor
    ```bash
    flutter pub get
    ```
-3. 
+3. **Run the Application**:
+   - For **iOS**:
+   ```bash
+   flutter run -d ios
+   ```
+   - For **Android**:
+   ```bash
+   flutter run -d android
+   ```
+   - For **Web** (if applicable):
+   ```bash
+   flutter run -d web
+   ```
+---
+**Troubleshooting**
+If you encounter issues:
+  - Ensure the backend is running and accessible
+  - Verify the Flutter SDK and dependencies are up to date
+    ```bash
+    flutter upgrade
+    ```
+  - Check the logs for detailed error messages:
+    ```bash
+    flutter logs
+    ```
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
