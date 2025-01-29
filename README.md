@@ -33,7 +33,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This repository contains the Flutter frontend developed as a proof of concept for the social media messaging application backend created by Mountain Lark Software for Drum Corps International. While not intended for production use, this frontend serves as a functional interface to demonstrate and test the backend’s capabilities.
+This Flutter frontend serves as a proof of concept for validating the backend functionality of a social media messaging application developed by Mountain Lark Software for Drum Corps International. It enables secure API testing, real-time messaging validation, and backend performance monitoring.
 
 ### Key Features:
 - **Testing Backend Functionality:** Provides an interface for validating the backend API's real-time messaging, authentication, and other features.
@@ -58,12 +58,6 @@ This repository contains the Flutter frontend developed as a proof of concept fo
 ### Development Tools
 - **[flutter_test](https://pub.dev/packages/flutter_test):** Provides a robust framework for testing Flutter applications.
 - **[flutter_lints](https://pub.dev/packages/flutter_lints):** Offers recommended linting rules to enforce clean and consistent coding practices.
-
----
-
-### Why This Version Exists
-
-This frontend is not designed for end-user deployment but instead acts as a lightweight client for testing backend functionality and showcasing the application's potential.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -136,72 +130,30 @@ If you encounter issues:
 ### Login Screen
 The login screen is the first interaction users will have with the application. It is designed to be simple, intuitive, and aligned with the asthetic of the app to make testing functionality easy.
 
-##### Key Features
-1. **Input Fields**:
-  - **Email Field**
-    - Accepts email input with an appropriate keyboard layout (`TextInputType.emailAddress`).
-    - Placeholder label text: "Email"
-  - **Password Field**:
-    - Accepts password input with obscured text for security (`obscureText: true`).
-    - Placeholder label text: "Password".
-    - Ensures proper field validation and user feedback.
-2. **Action Button**:
-  - **Login Button**:
-    - Dynamically enabled or disabled based on the loading state.
-    - Initiates the login process when pressed, validating user input and sending a login request to the backend.
-  - Displays a loading spinner (`CircularProgressIndicator`) during the authentication process.
-3. **Error Handling**:
-  - Displays user-friendly error messages in red text below the form when:
-    - Input field are left empty.
-    - Email or password is invalid.
-    - A network or server error occurs.
-  - Examples:
-    - "Please fill out all fields."
-    - "Invalid email or password."
-    - "An error occured. Please try again." 
-4. **Platform-Aware API Handling**:
-  - Dynamically determines the backend API URL based on the platform.
-    - For Android Emulators: `http://10.0.2.2:3000/api/v0/login`.
-    - For iOS or Web: `http://localhost:3000/api/v0/login`.
-5. **Secure Data Storage**:
-    - Uses `FlutterSecureStorage` to securely store authentication tokens and user IDs after a successful login.
+#### Key Features:
+- **Email & Password Input:**
+  - `TextField` for user input.
+  - Email field has appropriate keyboard type (`TextInputType.emailAddress`).
+  - Password field is obscured (`obscureText: true`).
 
----
+- **Login Button:**
+  - Enabled only when fields are filled.
+  - Displays a loading spinner (`CircularProgressIndicator`) while processing.
 
-#### Layout Overview
-1. **Header**:
-   - Title: "Login" displayed in the app bar.
-2. **Form Elements**:
-   - Email input field.
-   - Password input field.
-   - Login button or loading spinner.
-3. **Feedback**:
-   - Error messages displayed below the button if applicable.
-4. **Navigation**:
-   - Redirects users to the Conversations Index Screen (`/conversations`) upon successful login.
+- **Error Handling:**
+  - Displays errors such as:
+    - `"Please fill out all fields."`
+    - `"Invalid email or password."`
+    - `"An error occurred. Please try again."`
 
----
+- **Secure Data Storage:**
+  - Uses `FlutterSecureStorage` to store authentication tokens.
 
 #### User Flow:
-1. **Input Validation**:
-   - The login button remains active only when both fields are filled.
-   - Errors appear inline with the input is invalid.
-2. **Authentication Request**:
-   - Sends a `POST` request to the backend API with the provided email and password in JSON format.
-3. **Successful Login**:
-   - Stores the token and user ID securely.
-   - Navigates the user to the next screen.
-4. **Failed Login**:
-   - Displays an approriate error message.
+1. User enters email & password → Sends `POST /login` request.
+2. If successful → Token stored → Redirects to **Conversations Index**.
+3. If failed → Displays error message.
 
----
-
-#### Flutter Widgets Used
-1. **Input Fields**: `TextField`
-2. **Buttons**: `ElevatedButton`
-3. **Loading Indicator**: `CircularProgressIndicator`
-4. **Error Messages**: `Text`
-5. **Secure Storage**: `FlutterSecureStorage`
 
 ---
 
@@ -223,21 +175,14 @@ The conversation screens are designed to serve as a **proof of concept** and fac
 
 The **Conversation Index Screen** lists all conversations associated witht he test user. Its primary purpose is to test the backend's conversation indexing and navigation.
 
-#### Key Features:
-  1. **Conversation list**:
-     - Displays a list of conversations fetched from the backend.
-     - Shows:
-       - Names of participants (excluding the test user).
-       - Conversation titles.
-         - This will become a preview of the most recently sent message(see roadmap section)
-     - Conversations are presented as clickable cards for testing navigation.
-  2. **Backend Validation**:
-     - Confirms the backend returns accurate participant and title data for each conversation.
-     - Tests API integration with authenticatd requests.
-  3. **Navigation**:
-     - Clicking on a conversation card navigates to the **Conversation Detail Screen**, passing key data such as the conversation ID , title, and participants.
-  4. **Secure Access**:
-     - Fetches the test user's authentication token and ID securely from `FlutterSecureStorage`.
+#### Features:
+- **Displays List of Conversations:**
+  - Names of participants (excluding the logged-in user).
+  - Titles of conversations.
+- **Navigates to Conversation Details:**
+  - Clicking a conversation loads messages from the backend.
+- **Validates API Responses:**
+  - Confirms `/conversations` endpoint returns accurate data.
     
 #### UI Design:
   - **Card Layout**:
@@ -251,24 +196,14 @@ The **Conversation Index Screen** lists all conversations associated witht he te
 
 The **Conversation Detail Screen** tests backend message retrieval, WebSocket functionality, and real-time messaging features.
 
-#### Key Features:
-
-1. **Message Display**:
-   - Retrieves and displays messages for the selected conversation.
-   - Differentiates between messages sent by the test user and other participants:
-     - User messages are aligned to the rigth (blue background).
-     - Other messages are aligned to the left (gray background).
-   - Displays timestamps to verify backend message metadata.
-2. **Real-Time Updates**:
-   - Uses **ActionCable** to test WebSocket communication for real-time message updates.
-3. **Message Sending**:
-   - Includes a simple input feild and send button for testing `POST` requests to the backend.
-   - Utilizes `client_message_id` (UUID) to verify message deduplication and confirmation.
-4. **Backend Validation**:
-   - Confirms the accurate retrieval of participant data and the secure handling of authentication tokens.
-   - Validates backend logic for message storage, ordering, and metadata.
-5. **Scroll Management**:
-   - Tests automatic scrolling to new messages when sent or recieved.
+#### Features:
+- **Real-Time Messaging:**
+  - Uses **ActionCable WebSocket** for instant message updates.
+- **Sends Messages:**
+  - Messages sent via `POST /conversations/{id}/messages`.
+  - Uses **UUID** (`client_message_id`) for deduplication.
+- **Scrolls to Latest Message:**
+  - Automatically scrolls when a new message is received.
 
 #### UI Design:
 - **Message Bubbles**:
@@ -276,35 +211,6 @@ The **Conversation Detail Screen** tests backend message retrieval, WebSocket fu
   - Focuses on clear readability for testing purposes.
 - **Input Field**:
   - Simplified input field with placeholder text ("Type a message...") for testing message entry and submission.
-
----
-
-#### Interaction Flow for Testing:
-
-1. **Load Conversations**:
-   - Open **Conversation Index Screen** to test the `/conversations` endpoint.
-2. **Select a Conversation**:
-   - Click a conversation card to navigate to the **Conversation Detail Screen** and test `/conversations/{id}`.
-3. **Send and Receive Messages**:
-   - Test the message input to send POST requests.
-   - Validate real-time updates via WebSocket.
-
---- 
-
-#### Purpose of These Screens
-- **Proof of Concept**:
-  - Demonstrates basic messaging functionality and backend integration.
-- **Internal Testing**:
-  - Allows developers to validate backend endpoints, WebSocket communication, and data accuracy.
-- **Not for Production**:
-  - These screens are not intended for end-user interaction or deployment
-
----
-
-#### Technical Stack:
-- **API Integration**: `http` package for RESTful calls.
-- **Real-Time Communication**: `ActionCable` for WebSocket functionality.
-- **Secure Data Storage**: `FlutterSecureStorage` for tokens and user IDs.
 
 ---
 
@@ -321,195 +227,69 @@ The **Conversation Detail Screen** tests backend message retrieval, WebSocket fu
 <!-- State Management -->
 ## State Management
 
-This application uses **Flutter's** `StatefulWidget` for local state management, tailored to the requirements of the proof-of-concept frontend. The state is maintained and updated within the individual screens to simplify logic and ensure clear separation of concerns.
+The app uses `StatefulWidgets` for localized state management.
 
-### Key Features of State Management
+### Key State Variables:
 
-1. **Login Screen**:
-   - Tracks:
-     - Email and password input `TextEditingController`.
-     - Loading status (`_isLoading`) to toggle between the login button and progress indicator.
-     - Error messages(`_errorMessage`) for input validation or API errors.
-   - Updates state dynamically as the user interacts with the login form or receives a response from the backend.
-2. **Conversation Index Screen**:
-   - Tracks:
-     - List of conversations (`_conversations`) is fetched from the backend.
-     - Loading status (`_isLoading`) to display a loading spinner while fetching the data.
-     - Current user ID (`_currentUserId`),securely retrieved from `FlutterSecureStorage`.
-   - Dynamically updates the conversation list when data is fetched successfully.
-3. **Conversation Detail Screen**:
-   - Tracks:
-     - List of messages (`_messages`) in the conversation.
-     - Participants (`_participants`) and thier associated metadata.
-     - Connection status (`_isConnected`) for WebSocket integration.
-     - Message input field state using `TextEditingController`.
-   - Updates state in response to:
-     - Real-time messages received via WebSocket.
-     - New messages sent by the user.
-     - API responses for message retrieval.
+- **Authentication:**
+  - Securely retrieved and stored using `FlutterSecureStorage`.
 
----
+- **Conversations:**
+  - `_conversations`: Stores fetched conversations.
+  - `_participants`: Stores user details.
 
-### Integration with Backend and WebSocket
+- **Messages:**
+  - `_messages`: Stores conversation messages.
+  - `_isConnected`: Tracks WebSocket status.
 
-- **ActionCable for Real-Time Messaging**:
-  - State is updated instantly when new messages are received via WebSocket.
-  - The `_messages` list is appended dynamically, and the UI reflects changes automatically through `_setState()`.
-- **Secure Data Retrieval**:
-  - The app uses `FlutterSecureStorage` to retrieve and store authentication tokens and user IDs securely.
-  - These tokens are required for API calls, and ther absence leads to controlled state transitions (e.g., disabling UI elements).
-
----
-
-### Benefits of Current State Management:
-
-- **Simplicity**: The use of `StatefulWidget` keeps state management straightforward for this proof-of-concept application.
-- **Efficiency**: Local state updates ensure that only relevant parts of the UI are rebuilt, maintaining performance.
-- **Flexibility**: Each screen independently manages its state making debuing and testing easier.
-
---- 
-
-### Considerations for Scaling
-
-If this frontend were to evolve into a production-ready application:
-- **State Management Solutions**: Libraries like `Provider`, `Riverpod`, or `Bloc` could be adopted for scalable and reactive state management.
-- **Global State Handling**: Shared state (e.g., authentication data, user profiles) could be managed centrally for better coordiation across screens.
-- **Asynchronous Data Handling**: Tools like `StreamBuilder` or `FutureBuilder` could be integrated for smoother real-time and asynchronous updates.
+### Future Considerations:
+For scalability, **Provider** or **Riverpod** could be integrated.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- API Integration -->
 ## API Integration
 
-The frontend integrates with the backend REST API to facilitate essential features like authentication, conversation management, and real-time messaging. The integration focuses on providing a seamless and secure connection to test backend functionality effectively. 
+This Flutter frontend interacts with the backend API for authentication, conversation management, and real-time messaging.
 
----
+### Key Features:
 
-### Key Integration Features
+- **Platform-Aware API Requests:**
+  - **Android** → `http://10.0.2.2:3000`
+  - **iOS/Web** → `http://localhost:3000`
 
-1. **Dynamic API Endpoint Configuration**:
-   - Platform-specific logic is used to dynamically determine the API base URL:
-     - **Android Emulator**: Uses `http://10.0.2.2` for local testing.
-     - **iOS/Web**: Uses `http://localhost`.
-2. **Authentication and Secure Requests**:
-   - **Authentication**:
-     - Tokens are retrieved and stored securely using `FlutterSecureStorage`.
-   - **Headers**:
-     - Every API request includes the `Authorization` header with the Bearer token to authenticate the user.
-   - **Error Handling**:
-     - Invalid or expired tokens result in controlled errors, such as displaying error of messages or halting processes.
-3. **Endpoints Used**:
-   - **Login Screen**:
-     - `POST /api/v0/login`:
-       - Sends user credentials (email, password) to retrieve an authentication token and user ID.
-   - **Conversation Index Screen**:
-     - `GET /api/v0/conversations`:
-       - Retrieves a list of conversations the user is part of.
-   - **Conversation Detail Screen**:
-     - `GET api/v0/conversations/{id}`:
-       - Fetches the list of messages within a specific conversation.
-     - `POST api/v0/conversations/{id}/messages`:
-       - Sends a new message to the conversation.
-4. **Real-Time Messaging**:
-   - **WebSocket Integration**:
-     - Utilizes **ActionCable** to establish a WebSocket connection for real-time updates.
-     - Subscribes to the `ConvervsationChannel` to recieve new messages instantly.
-   - **Client Message ID**:
-     - Ensures unique identification of messages sent by the user for deduplication and confirmation purposes.
+- **Endpoints Used:**
+  - `POST /login` → Authenticates users.
+  - `GET /conversations` → Fetches conversations.
+  - `GET /conversations/{id}` → Retrieves messages.
+  - `POST /conversations/{id}/messages` → Sends messages.
 
----
+- **WebSocket Messaging:**
+  - Uses **ActionCable** for real-time updates.
 
-### Secure Data Flow
-- **Token-Based Authentication**:
-  - Tokens are stored securely and passed in headers for API requests
-- **Participant Validation**:
-  - Backend responses are filtered to exclude the current user's data when displaying participant information.
-
----
-
-### Example Workflow:
-
-1. **Login**:
-   - User enters email and password.
-   - Credentials are sent to the `/login` endpoint.
-   - A token and user ID are returned and stored securely.
-2. **Conversations**:
-   - The `/conversations` endpoint retrieves conversation data.
-   - Each conversation includes metadata like participants and titles.
-3. **Messages**:
-   - The `/conversations/{id}` endpoint retrieves existing messages.
-   - Real-time updates via WebSocket add new messages to the UI instantly.
-   - Sending messages to `/conversations/{id}/messages` reflects updates in real-time.
-
----
-
-### Considerations for Scalability
-
-If this frontend were to transition to a production-ready application:
-  - **Error Reporting**: Extend logging and user feedback for network failures.
-  - **API Rate Limiting**: Handle backend rate-limiting gracefully to ensure a smooth user experience.
-  - **Caching**: Implement caching for frequently accessed endpoints like `/conversations`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- Technical Solutions -->
 ## Technical Solutions
 
-The frontend incorporates a variety of technical solutions to effciently test and validate the backend's functionality while maintaining a simple and scalable design. These solutions address authentication, real-time communication, and dynamic data handling.
+The frontend incorporates key technical solutions to optimize testing and performance.
 
----
+### Key Implementations:
 
-### Key Technical Solutions
+- **Token-Based Authentication:**
+  - `FlutterSecureStorage` securely stores tokens for API requests.
 
-1. **Platform-Aware API Integration**:
-   - Dynamically determines the correct API base URL depending on the platform:
-     - **Android Emulator**: `http://10.0.2.2`.
-     - **iOS/Web**: `http://localhost`.
-   - Ensures consistent connectivity during local development and testing.
-2. **Token-Based Authentication**:
-   - Implements secure storage of tokens and user IDs via `FlutterSecureStorage`.
-   - Tokens are included in all API headers to authenticate requests.
-   - Missing or invalid tokens trigger appropriate error handling, ensuring secure data flow.
-3. **Real-time Messaging with WebSocket**:
-   - Uses **ActionCable** for WebSocket integration to enable real-time message delivery.
-   - Subscribes to the `ConversationChannel` for instant updates:
-     - New messages are appended dynamically to the conversation view.
-     - Client-side deduplication prevents duplicate message rendering. 
-4. **Dynamic Participant Filtering**:
-   - Filters out the current user when displaying participant names in conversations.
-   - Ensures accurate representation of other participants for testing purposes.
-5. **Message Deduplication and Confirmation**:
-   - Utilizes a unique `client_message_id` (UUID) for each sent message.
-   - Avoids duplicate message entities by matching incoming messages against `client_message_id`.
-6. **Scroll Management**:
-   - Automatically scrolls the conversation view to the latest message after sending or receiving messages.
-   - Provides a smooth user experience during real-time interactions.
+- **Real-Time Messaging:**
+  - WebSocket integration via **ActionCable** for instant updates.
+  - `client_message_id` (**UUID**) prevents duplicate messages.
 
----
+- **Scroll Management:**
+  - Automatically scrolls to new messages.
 
-### Problem-Solving Approaches
+- **Error Handling:**
+  - Displays meaningful errors for invalid credentials or connection failures.
 
-1. **Error Handling**:
-   - Comprehensive handling of API errors (e.g., 401 Unauthorized, 500 Server Error).
-   - Displays user-friendly messages such as "Invalid email or password" or "An error occurred. Please try again.".
-2. **Data Validation**:
-   - Ensures backend responses include all required fields before rendering (e.g., checking for `content` in messages).
-   - Defaults to placeholders (e.g., "Unknown" or "No Title") for missing or invalid data.
-3. **Secure State Management**:
-   - Sensitive data (e.g., tokens) is not stored in memory but retrieved securly on demand from `FlutterSecureStorage`.
-4. **Scalable Architecture**:
-   - Adopts local state management with `StatefulWidget` for simplicity, while laying the groundwork for integrating scalable state management libraries like `Provider` or `Riverpod` if needed.
-
----
-
-### Considerations for Future Improvements
-
-1. **Enhanced Real-Time Features**:
-   - Introduce typing indicators or message read receipts using WebSocket extensions
-2. **Caching for Improved Performance**:
-   - Implement caching for frequently accessed data, such as conversations or user infromation.
-3. **Error Analytics**:
-   - Integrate logging and error tracking tools like Sentry to monitor and analyze issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
